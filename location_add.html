@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>追加店铺</title>
+<meta http-equiv="Conent-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+</head>
+<body style="margin: 0px;">
+
+<h1>查找</h1>
+<div>
+	<input type="text" id="keyword" value="東京都港区" ><input type="button" id="search" value="検索">
+</div>
+<div id="map"></div>
+
+<div>
+住所：
+<div id="address"></div>
+</div>
+
+<div>
+店铺名字<br/>
+联系方式<br/>
+营业时间<br/>
+详细信息<br/>
+</div>
+
+<div>
+	提交
+</div>
+
+<script type="text/javascript" charset="utf-8" src="https://map.yahooapis.jp/js/V1/jsapi?appid=dj0zaiZpPUhvZkxuMlNYMkxjZSZzPWNvbnN1bWVyc2VjcmV0Jng9YmE-"></script>
+<script type="text/javascript">
+window.onload = function(){
+
+	// Map描画サイズ設定
+	var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+	$("#map").css("width", width);
+	$("#map").css("height", width*1.5);
+
+    var ymap = new Y.Map("map",{
+	    configure : {
+	        doubleClickZoom : true,
+	        scrollWheelZoom : true,
+	        singleClickPan : true,
+	        dragging : true
+	    }
+	});
+    
+    // スマホスタイルに指定
+    ymap.setConfigure('mapType',Y.Map.TYPE.SMARTPHONE);
+    ymap.drawMap(new Y.LatLng(35.66572, 139.73100), 17, Y.LayerSetId.NORMAL);
+
+    // 地図にアイコン表示
+	var icon = new Y.Icon('https://s.yimg.jp/images/map/yy/images/icon/yy_aicon_06_32pix.gif');
+	var marker = new Y.Marker(new Y.LatLng(35.66572, 139.73100), {icon: icon});
+	
+	// スケールコントロール追加
+	ymap.addControl(new Y.SliderZoomControlVertical(), 
+		new Y.ControlPosition(Y.ControlPosition.BOTTOM_LEFT, new Y.Size(10,230)));
+	
+	// クリックイベント処理
+	ymap.bind('click', function(latlng){
+		// 同時に一つmarkerしか有効にしない
+		ymap.removeFeature(marker);
+    	marker = new Y.Marker(latlng, {icon: icon});
+		ymap.addFeature(marker);
+
+		// リバースジオコーディングを実行
+		var geocoder = new Y.GeoCoder();
+		geocoder.execute( { latlng : latlng } , function(result) {
+	     	if ( result.features.length > 0 ) {
+	         	//リバースジオコーディング結果を表示
+	            $('#address').html(result.features[0].property.Address);
+	        }
+    	});
+	});
+
+	// 「大きな地図で見る」標識を隠す
+	$(".yolp-ymapbanner").css("display","none");
+
+	// ローカルサーチオブジェクトを生成します
+    var local = new Y.LocalSearch();
+
+    // 検索結果のマーカーを地図に立てる関数を定義します。
+    var search = function(){
+        // 検索キーワード, 電話帳カセットIDを指定します。
+        var keyword = $('#keyword').val();
+        var cid  = "d8a23e9e64a4c817227ab09858bc1330";
+        var options = {};
+
+        var bounds = new Y.LatLngBounds();
+
+        // 入力した値をパラメータとして検索します。
+        local.search(keyword, cid, options, function(result){
+            for (var i=0, len=result.features.length; i<len; i++) {
+                var feature = result.features[i];
+                bounds.extend(feature.latlng);
+            }
+
+            // 結果のYDFを地図に追加して、マーカーを立てます。
+            ymap.clearFeatures();
+            if(result.features && result.features[0]){
+                ymap.addFeatures(result.features);
+                ymap.drawBounds(bounds);
+            }
+      	});
+    }
+
+    $("#search").on("click", search);
+}
+</script>
+
+</body>
+</html>
