@@ -7,25 +7,25 @@
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://use.fontawesome.com/9abde5d4d2.js"></script>
 <style type="text/css">
-.animate{
+.animate {
 	transition: all 0.1s;
 	-webkit-transition: all 0.1s;
 }
 
-.submit_button{
+.submit_button {
 	padding: 10px 40px;
 	border-radius: 10px;
 	color: #FFF;
 	text-decoration: none;
 }
 
-.blue{
+.blue {
 	background-color: #03a3fc;
 	border-bottom: 5px solid #2980B9;
 	text-shadow: 0px -2px #2980B9;
 }
 
-.submit_button:active{
+.submit_button:active {
 	transform: translate(0px,5px);
 	-webkit-transform: translate(0px,5px);
 	border-bottom: 1px solid;
@@ -110,31 +110,31 @@
 	<i class="fa fa-home" aria-hidden="true"></i>
 	<span class="label_text">住所(必填)</span>
 </label>
-<input type="text" id="address" placeholder="自动填写">
+<input type="text" id="address" placeholder="自动填写"/>
 
 <label for="location_name">
 	<i class="fa fa-flag" aria-hidden="true"></i>
 	<span class="label_text">店铺名</span>
 </label>
-<input type="text" id="location_name">
+<input type="text" id="location_name"/>
 
-<label for="contact">
+<label for="contact_tel">
 	<i class="fa fa-phone" aria-hidden="true"></i>
 	<span class="label_text">联系方式</span>
 </label>
-<input type="text" id="contact" type="number" placeholder="08012341234">
+<input type="text" id="contact_tel" type="number" placeholder="08012341234"/>
 
 <label for="business_time">
 	<i class="fa fa-calendar" aria-hidden="true"></i>
 	<span class="label_text">营业时间</span>
 </label>
-<input type="text" id="business_time" placeholder="10:00-20:00">
+<input type="text" id="business_time" placeholder="10:00-20:00"/>
 
 <label for="email">
 	<i class="fa fa-envelope-square" aria-hidden="true"></i>
 	<span class="label_text">你的email</span>
 </label>
-<input type="text" id="email"" placeholder="如果你留下email,信息审核完毕后我们会给你发送邮件通知">
+<input type="text" id="email"" placeholder="如果你留下email,信息审核完毕后我们会给你发送邮件通知"/>
 
 <label for="note">
 	<i class="fa fa-sticky-note" aria-hidden="true"></i>
@@ -145,9 +145,10 @@
 <div class="submit_div"><a id="add_location" class="submit_button animate blue">提交信息</a></div>
 </div>
 
-
 <script type="text/javascript" charset="utf-8" src="https://map.yahooapis.jp/js/V1/jsapi?appid=dj0zaiZpPUhvZkxuMlNYMkxjZSZzPWNvbnN1bWVyc2VjcmV0Jng9YmE-"></script>
 <script type="text/javascript">
+var current_lat;
+var current_lng;
 window.onload = function(){
 
 	// Map描画サイズ設定
@@ -166,6 +167,7 @@ window.onload = function(){
     
     // スマホスタイルに指定
     ymap.setConfigure('mapType',Y.Map.TYPE.SMARTPHONE);
+    // TODO 現在値の緯度
     ymap.drawMap(new Y.LatLng(35.66572, 139.73100), 17, Y.LayerSetId.NORMAL);
 
     // 地図にアイコン表示
@@ -181,7 +183,11 @@ window.onload = function(){
 		// 同時に一つmarkerしか有効にしない
 		ymap.removeFeature(marker);
     	marker = new Y.Marker(latlng, {icon: icon});
+    	console.log(latlng);
 		ymap.addFeature(marker);
+
+    	current_lat = latlng.Lat;
+    	current_lng = latlng.Lon;
 
 		// リバースジオコーディングを実行
 		var geocoder = new Y.GeoCoder();
@@ -228,6 +234,29 @@ window.onload = function(){
 
     var submit = function(){
 
+    	var request = {
+    		address: $("#address").val(),
+    		location_name: $("#location_name").val(),
+    		lat: current_lat,
+    		lng: current_lng,
+    		contact_tel: $("#contact_tel").val(),
+    		business_time: $("#business_time").val(),
+    		email: $("#email").val(),
+    		note: $("#note").val()
+    	};
+
+    	$.ajax({
+    		type: "POST",
+    		url: "location_add.php",
+    		data: request,
+    		cache: false,
+    		success: function(response) {
+    			alert("success");
+    		},
+    		error: function() {
+    			alert("error");
+    		}
+    	});
     }
 
     $("#add_location").on("click", submit);
