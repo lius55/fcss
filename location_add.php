@@ -1,6 +1,6 @@
 <?php
 
-ini_set('display_errors', 1);
+include_once 'config.php';
 
 // パラメーター取得
 $address = $_REQUEST["address"];
@@ -12,22 +12,8 @@ $business_time = isset($_REQUEST["business_time"]) ? $_REQUEST["business_time"] 
 $email = isset($_REQUEST["email"]) ? $_REQUEST["email"] : '';
 $note = isset($_REQUEST["note"]) ? $_REQUEST["note"] : '';
 
-// DB接続設定
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'location_schema');
-define('DB_USER', 'root');
-define('DB_PASSWORD', 'root');
+try{
 
-// 文字化け対策
-$options = array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET CHARACTER SET 'utf8'");
-
-// PHPのエラーを表示するように設定
-error_reporting(E_ALL & ~E_NOTICE);
-
-// データベースの接続
-try {
-	$dbh = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD, $options);
-	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	$stmt = $dbh->prepare("INSERT INTO trn_location_his(version_id, location_name, lat, lng, "
  			. "address, status, category_id, contact_tel, business_time, contributor_email, "
  			. "note, insert_date, insert_user, update_date, update_user) "
@@ -45,6 +31,11 @@ try {
  	$stmt->bindParam(':note', $note);
 
  	$stmt->execute();
+
+ 	if(strlen($email) > 0) {
+ 		// メール送信
+
+ 	}
 
 } catch (PDOException $e) {
      echo $e->getMessage();
