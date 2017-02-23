@@ -5,6 +5,7 @@
 <meta http-equiv="Conent-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://use.fontawesome.com/9abde5d4d2.js"></script>
 <script type="text/javascript">
 window.onload = function() {
 	var request;
@@ -15,19 +16,131 @@ window.onload = function() {
     		cache: false,
     		success: function(response) {
     			if(response.response_status == "ok") {
-    				alert("ok");
+                    for(var location of response.location_list) {
+                        $("#location").append(
+                            "<div class='location_list'><div class='date'>" + location.insert_date + "</div>"
+                            + "<div><div class='location_name'><div>" + location.location_name + "</div>"
+                            + "<div class='address'>" + location.address + "</div></div>"
+                            + "<i class='fa fa-angle-right detail' aria-hidden='true'></i></div>"
+                            + "<input type='hidden' value='" + location.location_id + "' class='location_id' />"
+                            + "<input type='hidden' value='" + location.version_id + "' class='version_id' />" 
+                            + "<div>");
+                    }
+                    
     			} else {
-    				alert("ng");
+    				alert("认证过期，请重新登录。");
+                    location.href = "login.html";
     			}
     		},
     		error: function() {
-    			alert("error");
+    			alert("不好意思，出错了。");
+                location.href = "login.html";
     		}
 		});
+
+    // 要素指定が必要
+    $("#location").on('click', '.location_list', function() {
+
+        $.ajax({
+            type: 'POST',
+            url: "get_review_info.php",
+            data: {
+                location_id: $(this).find(".location_id").val(),
+                version_id: $(this).find(".version_id").val()
+            },
+            cache: false,
+            success: function(response) {
+                $("#location").css("display", "none");
+                $("#location_info").css("display", "block");
+            },
+            error: function() {
+                alert("不好意思，出错了。");
+                //location.href = "login.html"; 
+            }
+        });
+    });
 }
 </script>
+<style type="text/css">
+.header {
+    background-color: #037add;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 18px;
+}
+.location_list {
+    border-bottom: 1px solid grey;
+    padding:10px;
+}
+.location_list:hover {
+    background-color: rgba(255, 255, 185, 0.71);
+    cursor: pointer;
+}
+.date,.address {
+    font-size: 70%;
+    color: grey;
+}
+.location_name {
+    width: 95%;
+    display: inline-block;
+}
+.detail {
+    display: inline-block;
+    color: blue;
+    font-size: 40px;
+}
+.info_line {
+    line-height: 120%;
+    padding: 5px;
+    border-bottom: 1px grey dotted;
+}
+#location_info {
+    padding: 15px;
+}
+.info_title {
+    padding-top: 10px;
+}
+.icon {
+    padding-right: 10px;
+}
+</style>
 </head>
-<body>
+<body style="margin: 0px;">
+<div class="header">信息审查</div>
+<div id="location">
+</div>
+<div id="location_info" style="display: none;">
+    <div class="info_title">
+        <i class="fa fa-home icon" aria-hidden="true"></i><span class="label_text">住所</span>
+    </div>
+    <div class="info_line" id="address"></div>
+
+    <div class="info_title">
+        <i class="fa fa-flag icon" aria-hidden="true"></i><span class="label_text">店铺名</span>
+    </div>
+    <div class="info_line" id="location_name"></div>
+
+    <div class="info_title">
+        <i class="fa fa-phone icon" aria-hidden="true"></i><span class="label_text">联系方式</span>
+    </div>
+    <div class="info_line" id="contact_tel"></div>
+
+    <div class="info_title">
+        <i class="fa fa-calendar icon" aria-hidden="true"></i><span class="label_text">营业时间</span>
+    </div>
+    <div class="info_line" id="business_time"></div>
+
+    <div class="info_title">
+        <i class="fa fa-envelope-square icon" aria-hidden="true"></i><span class="label_text">提交者email</span>
+    </div>
+    <div class="info_line" id="email"></div>
+
+    <div class="info_title">
+        <i class="fa fa-pencil icon" aria-hidden="true"></i><span class="label_text">备注信息</span>
+    </div>
+    <div class="info_line" id="note"></div>
+</div>
 
 </body>
 </html>
