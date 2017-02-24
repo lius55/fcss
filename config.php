@@ -15,4 +15,8 @@ error_reporting(E_ALL & ~E_NOTICE);
 $dbh = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD, $options);
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+define('PROCESS_ERROR', 'process error');
+define('RESPONSE_OK', 'ok');
+deine('INVALID_REQUEST', 'invalid request');
+define('STATUS_REVIEW_OK', 'REVIEW_OK');
 ?>

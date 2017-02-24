@@ -50,12 +50,42 @@ window.onload = function() {
             },
             cache: false,
             success: function(response) {
+
+                var location = response.location_info;
                 $("#location").css("display", "none");
                 $("#location_info").css("display", "block");
+
+                $("#address").html(location.address);
+                $("#location_name").html(location.location_name);
+                $("#contact_tel").html(location.contact_tel);
+                $("#business_time").html(location.business_time);
+                $("#email").html(location.business_time);
+                $("#note").html(location.note);
+                $("#location_id").val(location.location_id);
+                $("#version_id").val(location.version_id);
             },
             error: function() {
                 alert("不好意思，出错了。");
                 //location.href = "login.html"; 
+            }
+        });
+    });
+
+    $(".operation").on('click', '.fa-chevron-circle-left', function(){});
+
+    $(".operation").on('click', '.fa-check-circle, .fa-ban', function(){
+
+        $.ajax({
+            type: 'POST',
+            url: "review.php",
+            data: {
+                status: 'REVIEW_OK',
+                location_id: $("#location_id").val(),
+                version_id: $("#version_id").val()
+            },
+            cache: false,
+            success: function(response) {
+                alert("状态更新完毕!");
             }
         });
     });
@@ -91,8 +121,7 @@ window.onload = function() {
     font-size: 40px;
 }
 .info_line {
-    line-height: 120%;
-    padding: 5px;
+    margin: 5px;
     border-bottom: 1px grey dotted;
 }
 #location_info {
@@ -103,6 +132,15 @@ window.onload = function() {
 }
 .icon {
     padding-right: 10px;
+}
+.operation {
+    text-align: center;
+    font-size: 50px;
+    letter-spacing: 20px;
+    color: #2980B9;
+}
+.operation_icon:hover {
+    font-size: 150%;
 }
 </style>
 </head>
@@ -140,6 +178,22 @@ window.onload = function() {
         <i class="fa fa-pencil icon" aria-hidden="true"></i><span class="label_text">备注信息</span>
     </div>
     <div class="info_line" id="note"></div>
+
+    <div class="operation">
+        <div style="display: inline-block;">
+            <i class="fa fa-chevron-circle-left operation_icon" aria-hidden="true"></i>
+            <!--<div>吹きたし</div>-->
+        </div>
+        <div style="display: inline-block;">
+            <i class="fa fa-check-circle operation_icon" aria-hidden="true"></i>
+        </div>
+        <div style="display: inline-block;">
+            <i class="fa fa-ban operation_icon" aria-hidden="true"></i>
+        </div>
+    </div>
+
+    <input type="hidden" id="location_id" />
+    <input type="hidden" id="version_id" />
 </div>
 
 </body>

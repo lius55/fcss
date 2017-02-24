@@ -1,6 +1,10 @@
 <?php
+header("Content-type: text/html; charset=utf-8");
+header('Content-Type: application/json');
 
 include_once 'config.php';
+
+$response = new stdClass();
 
 // パラメーター取得
 $address = $_REQUEST["address"];
@@ -38,8 +42,8 @@ try{
  	}
 
 } catch (PDOException $e) {
-     echo $e->getMessage();
-     exit;
+     $response->response_status = "process error";
 }
 
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
 ?>

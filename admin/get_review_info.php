@@ -17,7 +17,7 @@ if(isset($_SESSION["auth"]) && $_SESSION["auth"]) {
 
 	$stmt = 
 		$dbh->prepare("select location_id,version_id,location_name,lat,lng,"
-			. "address,postcode,contact_tel,business_time,profile,insert_date "
+			. "address,postcode,contact_tel,business_time,profile,insert_date,note "
 			. "from trn_location_his where location_id = :location_id and version_id = :version_id");
 
 	$stmt->bindParam(":location_id", $location_id);
