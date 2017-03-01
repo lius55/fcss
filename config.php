@@ -17,6 +17,6 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 define('PROCESS_ERROR', 'process error');
 define('RESPONSE_OK', 'ok');
-deine('INVALID_REQUEST', 'invalid request');
+define('INVALID_REQUEST', 'invalid request');
 define('STATUS_REVIEW_OK', 'REVIEW_OK');
 ?>

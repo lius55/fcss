@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Conent-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://use.fontawesome.com/9abde5d4d2.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://map.yahooapis.jp/js/V1/jsapi?appid=dj0zaiZpPUhvZkxuMlNYMkxjZSZzPWNvbnN1bWVyc2VjcmV0Jng9YmE-"></script>
+<script src="js/request.js"></script>
+<link rel="stylesheet" media="all" href="css/location.css" />
+<title>附近的中华物产店</title>
+</head>
+<style type="text/css">
+.location_list {
+	border-top: 1px solid grey;
+	border-bottom: 1px solid grey;
+}
+body {
+	margin: 0px;
+}
+</style>
+<script type="text/javascript">
+// 現在所在地位置情報
+var current_lat = 35.66572;
+var current_lng = 139.73100;
+
+// 地図で選択された位置情報
+var selected_lat;
+var selected_lng;
+
+window.onload = function(){
+
+	// 現在地情報取得
+	var option = {
+		"enableHighAccuracy": false,
+		"timeout": 5000,
+		"maximumAge": 5000
+	};
+	var geoSuccess = function(pos) {
+		current_lat = pos.coords.latitude;
+		current_lng = pos.coords.longitude;
+		showMap();
+	}
+	var geoError = function(pos) {
+		// デフォルト設定
+		current_lat = 35.66572;
+		current_lng = 139.73100;
+		showMap();
+	}
+
+	navigator.geolocation.getCurrentPosition(geoSuccess, geoError, option);
+
+	var showMap = function(){
+		// Map描画サイズ設定
+		var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+		$("#map").css("width", width);
+		$("#map").css("height", width*0.8);
+
+	    var ymap = new Y.Map("map",{
+		    configure : {
+		        doubleClickZoom : true,
+		        scrollWheelZoom : true,
+		        singleClickPan : true,
+		        dragging : true
+		    }
+		});
+	    
+	    // スマホスタイルに指定
+	    ymap.setConfigure('mapType',Y.Map.TYPE.SMARTPHONE);
+	    // TODO 現在値の緯度
+	    ymap.drawMap(new Y.LatLng(current_lat, current_lng), 17, Y.LayerSetId.NORMAL);
+
+	    // 地図にアイコン表示
+		var icon = new Y.Icon('https://s.yimg.jp/images/map/yy/images/icon/yy_aicon_06_32pix.gif');
+		var marker = new Y.Marker(new Y.LatLng(current_lat, current_lng), {icon: icon});
+
+		// スケールコントロール追加
+		ymap.addControl(new Y.SliderZoomControlVertical(), 
+			new Y.ControlPosition(Y.ControlPosition.BOTTOM_LEFT, new Y.Size(10,230)));
+
+		// 「大きな地図で見る」標識を隠す
+		$(".yolp-ymapbanner").css("display","none");
+
+		getLocationList();
+	};
+
+	var getLocationList = function() {
+		request.ajax({
+			url: "location_list.php",
+	    	data: {
+	    		lat: current_lat,
+	    		lng: current_lng
+	    	},
+	    	success: function(response) {
+
+	    		// 店舗なし、シェア
+	    		if (Object.keys(response).length < 1) {
+	    			$("#location").append("很抱歉，附近还没有店铺信息。我来分享");
+	    		} else {
+		    		$("#location").append(
+		    			"<div class='location_list'>"
+		                + "<div><div class='location_name'><div><i class='fa fa-map-marker' aria-hidden='true'></i>" 
+		                + location.location_name + "</div>"
+		                + "<div class='address'>" + location.address + "</div></div>"
+		                + "<i class='fa fa-angle-right detail' aria-hidden='true'></i></div>"
+		                + "<input type='hidden' value='" + location.location_id + "' class='location_id' />"
+		                + "<input type='hidden' value='" + location.version_id + "' class='version_id' />" 
+		                + "<div>");
+	    		}
+
+	   		}
+		});
+	}
+};
+</script>
+<body>
+
+<div class="header">
+	<input type="text" id="keyword"　autocomplete="off" placeholder="東京都港区" ><button id="search" class="search">查找地点</button>
+</div>
+<div id="map">
+	<div class="loading">
+	    <div class="bar bar1"></div>
+	    <div class="bar bar2"></div>
+	    <div class="bar bar3"></div>
+	    <div class="bar bar4"></div>
+	    <div class="bar bar5"></div>
+	</div>
+	<div class="loading_footer">
+		正在为您加载地图...	
+	</div>
+</div>
+
+<div>附近的店铺情报</div>
+<div id="location">
+
+</div>
+
+
+
+</body>
+</html>
