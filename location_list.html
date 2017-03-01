@@ -12,11 +12,17 @@
 </head>
 <style type="text/css">
 .location_list {
-	border-top: 1px solid grey;
 	border-bottom: 1px solid grey;
 }
-body {
-	margin: 0px;
+#location {
+	background-color: #f2f2f2;
+	padding: 10px;
+}
+.location_name {
+	display: inline-block;
+}
+.address {
+	display: inline-block;
 }
 </style>
 <script type="text/javascript">
@@ -27,6 +33,10 @@ var current_lng = 139.73100;
 // 地図で選択された位置情報
 var selected_lat;
 var selected_lng;
+
+var map_displayed = false;
+
+var icon = new Y.Icon('image/map-maker.svg',{iconSize: new Y.Size(60,60)});
 
 window.onload = function(){
 
@@ -40,17 +50,24 @@ window.onload = function(){
 		current_lat = pos.coords.latitude;
 		current_lng = pos.coords.longitude;
 		showMap();
-	}
+	};
 	var geoError = function(pos) {
 		// デフォルト設定
 		current_lat = 35.66572;
 		current_lng = 139.73100;
 		showMap();
-	}
+	};
 
 	navigator.geolocation.getCurrentPosition(geoSuccess, geoError, option);
 
 	var showMap = function(){
+
+		if (map_displayed) {
+			return;
+		} else {
+			map_displayed = true;
+		}
+
 		// Map描画サイズ設定
 		var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
 		$("#map").css("width", width);
@@ -64,14 +81,13 @@ window.onload = function(){
 		        dragging : true
 		    }
 		});
-	    
+
 	    // スマホスタイルに指定
 	    ymap.setConfigure('mapType',Y.Map.TYPE.SMARTPHONE);
-	    // TODO 現在値の緯度
+	    // 現在値の緯度
 	    ymap.drawMap(new Y.LatLng(current_lat, current_lng), 17, Y.LayerSetId.NORMAL);
 
 	    // 地図にアイコン表示
-		var icon = new Y.Icon('https://s.yimg.jp/images/map/yy/images/icon/yy_aicon_06_32pix.gif');
 		var marker = new Y.Marker(new Y.LatLng(current_lat, current_lng), {icon: icon});
 
 		// スケールコントロール追加
@@ -81,10 +97,10 @@ window.onload = function(){
 		// 「大きな地図で見る」標識を隠す
 		$(".yolp-ymapbanner").css("display","none");
 
-		getLocationList();
+		getLocationList(ymap);
 	};
 
-	var getLocationList = function() {
+	var getLocationList = function(ymap) {
 		request.ajax({
 			url: "location_list.php",
 	    	data: {
@@ -97,20 +113,25 @@ window.onload = function(){
 	    		if (Object.keys(response).length < 1) {
 	    			$("#location").append("很抱歉，附近还没有店铺信息。我来分享");
 	    		} else {
-		    		$("#location").append(
-		    			"<div class='location_list'>"
-		                + "<div><div class='location_name'><div><i class='fa fa-map-marker' aria-hidden='true'></i>" 
-		                + location.location_name + "</div>"
-		                + "<div class='address'>" + location.address + "</div></div>"
-		                + "<i class='fa fa-angle-right detail' aria-hidden='true'></i></div>"
-		                + "<input type='hidden' value='" + location.location_id + "' class='location_id' />"
-		                + "<input type='hidden' value='" + location.version_id + "' class='version_id' />" 
-		                + "<div>");
+	    			for(var location of response.location_list) {
+			    		$("#location").append(
+			    			"<div class='location_list'>"
+			                + "<div><div class='location_name'><div><i class='fa fa-map-marker' aria-hidden='true'></i>" 
+			                + location.location_name + "</div>"
+			                + "<div class='address'>" + location.address + "</div></div>"
+			                + "<i class='fa fa-angle-right detail' aria-hidden='true'></i></div>"
+			                + "<input type='hidden' value='" + location.location_id + "' class='location_id' />"
+			                + "<input type='hidden' value='" + location.version_id + "' class='version_id' />" 
+			                + "<div>");
+			    		// icon追加
+			    		var marker = new Y.Marker(new Y.LatLng(location.lat, location.lng), {icon: icon});
+						ymap.addFeature(marker);
+		    		}
 	    		}
 
 	   		}
 		});
-	}
+	};
 };
 </script>
 <body>
@@ -131,9 +152,8 @@ window.onload = function(){
 	</div>
 </div>
 
-<div>附近的店铺情报</div>
 <div id="location">
-
+<div>附近的店铺情报</div>
 </div>
 
 

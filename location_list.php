@@ -20,13 +20,18 @@ $max_lng = $lng + $lng_dis;
 
 $response = new stdClass();
 
-$stmt =$dbh->prepare("select location_id,location_name,address,version_id "
+$stmt =$dbh->prepare("select location_id,location_name,address,version_id,lat,lng "
 		." from trn_location where lat between :min_lat and :max_lat "
 		. " and lng between :min_lng and :max_lng");
 $stmt->bindParam(":min_lat", $min_lat);
 $stmt->bindParam(":max_lat", $max_lat);
 $stmt->bindParam(":min_lng", $min_lng);
 $stmt->bindParam(":max_lng", $max_lng);
+
+$stmt->execute();
+while($row = $stmt->fetch(PDO::FETCH_OBJ)) {
+	$response->location_list[] = $row;
+}
 
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
 ?>

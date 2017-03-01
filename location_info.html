@@ -4,13 +4,66 @@
 <meta http-equiv="Conent-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://use.fontawesome.com/9abde5d4d2.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://map.yahooapis.jp/js/V1/jsapi?appid=dj0zaiZpPUhvZkxuMlNYMkxjZSZzPWNvbnN1bWVyc2VjcmV0Jng9YmE-"></script>
+<script src="js/request.js"></script>
+<link rel="stylesheet" media="all" href="css/location.css" />
 <title>店铺信息</title>
+<script type="text/javascript">
+window.onload = function(){
+
+	var target_lat = location.search.match(/lat=(.*?)(&|$)/)[1];
+	var target_lng = location.search.match(/lng=(.*?)(&|$)/)[1];
+	var location_id = location.search.match(/location_id=(.*?)(&|$)/)[1];
+	var version_id = location.search.match(/version_id=(.*?)(&|$)/)[1];
+
+	// Map描画サイズ設定
+	var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+	$("#map").css("width", width);
+	$("#map").css("height", width*0.7);
+
+    var ymap = new Y.Map("map",{
+	    configure : {
+	        doubleClickZoom : true,
+	        scrollWheelZoom : true,
+	        singleClickPan : true,
+	        dragging : true
+	    }
+	});
+
+    // スマホスタイルに指定
+	ymap.setConfigure('mapType',Y.Map.TYPE.SMARTPHONE);
+    // 現在値の緯度
+    ymap.drawMap(new Y.LatLng(target_lat, target_lng), 17, Y.LayerSetId.NORMAL);
+
+    // 地図にアイコン表示
+	var marker = new Y.Marker(new Y.LatLng(target_lat, target_lng), {icon: icon});
+
+	// スケールコントロール追加
+	ymap.addControl(new Y.SliderZoomControlVertical(), 
+		new Y.ControlPosition(Y.ControlPosition.BOTTOM_LEFT, new Y.Size(10,230)));
+
+	// 「大きな地図で見る」標識を隠す
+	$(".yolp-ymapbanner").css("display","none");
+
+	request.ajax({
+			url: "location_list.php",
+	    	data: {
+	    		location_id: location_id,
+	    		version_id: version_id
+	    	},
+	    	success: function(response) {
+	    		
+	    	}
+	};
+}
+</script>
 </head>
 <body>
 
+<div id="loation_name"></div>
 <div id="map"></div>
-
-<div>我来完善</div>
+<div id="location_address"></div>
 
 </body>
 </html>

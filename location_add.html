@@ -145,6 +145,7 @@
 .loading_footer {
 	padding-bottom: 20px;
 }
+
 </style>
 </head>
 <body style="margin: 0px;">
@@ -257,7 +258,7 @@ window.onload = function(){
 	    ymap.drawMap(new Y.LatLng(current_lat, current_lng), 17, Y.LayerSetId.NORMAL);
 
 	    // 地図にアイコン表示
-		var icon = new Y.Icon('https://s.yimg.jp/images/map/yy/images/icon/yy_aicon_06_32pix.gif');
+		var icon = new Y.Icon('image/map-maker.svg',{iconSize: new Y.Size(60,60)});
 		var marker = new Y.Marker(new Y.LatLng(current_lat, current_lng), {icon: icon});
 		
 		// スケールコントロール追加
