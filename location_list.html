@@ -113,19 +113,30 @@ window.onload = function(){
 	    		if (Object.keys(response).length < 1) {
 	    			$("#location").append("很抱歉，附近还没有店铺信息。我来分享");
 	    		} else {
-	    			for(var location of response.location_list) {
+	    			for(var location_info of response.location_list) {
 			    		$("#location").append(
 			    			"<div class='location_list'>"
 			                + "<div><div class='location_name'><div><i class='fa fa-map-marker' aria-hidden='true'></i>" 
-			                + location.location_name + "</div>"
-			                + "<div class='address'>" + location.address + "</div></div>"
+			                + location_info.location_name + "</div>"
+			                + "<div class='address'>" + location_info.address + "</div></div>"
 			                + "<i class='fa fa-angle-right detail' aria-hidden='true'></i></div>"
-			                + "<input type='hidden' value='" + location.location_id + "' class='location_id' />"
-			                + "<input type='hidden' value='" + location.version_id + "' class='version_id' />" 
+			                + "<input type='hidden' value='" + location_info.location_id + "' name='location_id' />"
+			                + "<input type='hidden' value='" + location_info.version_id + "' name='version_id' />"
+			                + "<input type='hidden' value='" + location_info.lat + "' name='lat' />"
+			                + "<input type='hidden' value='" + location_info.lng + "' name='lng' />"
 			                + "<div>");
 			    		// icon追加
-			    		var marker = new Y.Marker(new Y.LatLng(location.lat, location.lng), {icon: icon});
+			    		var marker = new Y.Marker(new Y.LatLng(location_info.lat, location_info.lng), {icon: icon});
 						ymap.addFeature(marker);
+
+						$("#location").on('click', '.location_list', function() {
+							location_id = $(this).find("[name=location_id]").val();
+							version_id = $(this).find("[name=version_id]").val();
+							lat = $(this).find("[name=lat]").val();
+							lng = $(this).find("[name=lng]").val();
+							location.href = "location_info.html?location_id=" + location_id + "&version_id="
+								+ version_id + "&lat=" + lat + "&lng=" + lng; 
+						});
 		    		}
 	    		}
 

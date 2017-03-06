@@ -3,6 +3,7 @@ header("Content-type: text/html; charset=utf-8");
 header('Content-Type: application/json');
 
 include_once 'config.php';
+require_once 'PHPMailer/PHPMailerAutoload.php';
 
 $response = new stdClass();
 
@@ -37,13 +38,46 @@ try{
  	$stmt->execute();
 
  	if(strlen($email) > 0) {
- 		// メール送信
 
+ 		$mail = new PHPMailer();
+ 		if(!send_mail(
+ 			$mail, 
+ 			"感谢您的分享", 
+ 			"感谢您的分享，我们会尽快进行审查，审查结束后会以邮件的形式通知您，请稍稍等候。", 
+ 			$email)) {
+ 			// メール送信
+			$response->response_status = "process error:" . $mail->ErrorInfo;
+		}
  	}
 
 } catch (PDOException $e) {
-     $response->response_status = "process error";
+     $response->response_status = PROCESS_ERROR;
 }
 
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
+
+/**
+ * $subject メールタイトル
+ * $body 送信内容
+ * $to 送信先EMAILアドレス
+ */
+function send_mail($mail, $subject, $body, $to) {
+    //$from = 'china_souvenir_shop@gmail.com';
+    $from = MAIL_ADDRESS;
+    $pass = MAIL_PASS;
+    $mail->isSMTP();
+    $mail->CharSet = 'utf-8';
+    $mail->Host = 'smtp.gmail.com';
+    $mail->Port = 587;
+    $mail->SMTPSecure = 'tls';
+    $mail->SMTPAuth = true;
+    $mail->Username = $from;
+    $mail->Password = $pass;
+    $mail->setFrom($from);
+    $mail->addReplyTo($from);
+    $mail->addAddress($to);
+    $mail->Subject = $subject;
+    $mail->Body = $body;
+    return $mail->send();
+}
 ?>
