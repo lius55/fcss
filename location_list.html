@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Conent-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://use.fontawesome.com/9abde5d4d2.js"></script>
 <script type="text/javascript" charset="utf-8" src="https://map.yahooapis.jp/js/V1/jsapi?appid=dj0zaiZpPUhvZkxuMlNYMkxjZSZzPWNvbnN1bWVyc2VjcmV0Jng9YmE-"></script>
 <script src="js/request.js"></script>
@@ -23,6 +23,20 @@
 }
 .address {
 	display: inline-block;
+}
+#share {
+    position: fixed;
+    right: 15px;
+    bottom: 15px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 5px 15px;
+    text-align: center;
+}
+#share:hover {
+	font-size: 18px;
 }
 </style>
 <script type="text/javascript">
@@ -167,7 +181,16 @@ window.onload = function(){
 <div>附近的店铺情报</div>
 </div>
 
+<div id="share">
+    <!--<i class="fa fa-plus-circle" aria-hidden="true"></i>-->
+    我来分享<i class="fa fa-share-alt" aria-hidden="true"></i>
+</div>
 
+<script type="text/javascript">
+$("#share").on('click', function(){
+	location.href = "location_add.html";
+});
+</script>
 
 </body>
 </html>

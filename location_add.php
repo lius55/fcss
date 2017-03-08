@@ -56,28 +56,4 @@ try{
 
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
 
-/**
- * $subject メールタイトル
- * $body 送信内容
- * $to 送信先EMAILアドレス
- */
-function send_mail($mail, $subject, $body, $to) {
-    //$from = 'china_souvenir_shop@gmail.com';
-    $from = MAIL_ADDRESS;
-    $pass = MAIL_PASS;
-    $mail->isSMTP();
-    $mail->CharSet = 'utf-8';
-    $mail->Host = 'smtp.gmail.com';
-    $mail->Port = 587;
-    $mail->SMTPSecure = 'tls';
-    $mail->SMTPAuth = true;
-    $mail->Username = $from;
-    $mail->Password = $pass;
-    $mail->setFrom($from);
-    $mail->addReplyTo($from);
-    $mail->addAddress($to);
-    $mail->Subject = $subject;
-    $mail->Body = $body;
-    return $mail->send();
-}
 ?>

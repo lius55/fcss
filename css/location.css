@@ -3,7 +3,7 @@ body {
 }
 
 .header input[type=text] {
-    width: 80%;
+    width: 75%;
     padding: 10px 10px;
     padding-left: 35px;
     display: inline-block;
@@ -31,7 +31,8 @@ body {
     padding: 10px 10px;
     border-radius: 8px;
     cursor: pointer;
-    margin-left: 10px;
+    width: 20%
+    margin-left: 4%;
 }
 
 #map {
