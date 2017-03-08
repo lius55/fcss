@@ -19,12 +19,7 @@ body {
     padding: 10px;
     font-size: 110%;
     color: royalblue;
-    /* box-shadow: 0 0px 8px 0 rgba(0,0,0,0.5),0 2px 10px 0 rgba(0,0,0,0.12)!important; */
-    /* border-radius: 8px; */
-    /* margin: 5px 0px; */
-    /* border-bottom: 1px grey dotted; */
     margin: 2px 0;
-    /* margin: 10px; */
 }
 .location_list {
 	border-bottom: 1px solid grey;
@@ -68,6 +63,8 @@ var map_displayed = false;
 
 var icon = new Y.Icon('image/map-maker.svg',{iconSize: new Y.Size(60,60)});
 
+var ymap;
+
 window.onload = function(){
 
 	// 現在地情報取得
@@ -103,7 +100,7 @@ window.onload = function(){
 		$("#map").css("width", width);
 		$("#map").css("height", width*0.8);
 
-	    var ymap = new Y.Map("map",{
+	    ymap = new Y.Map("map",{
 		    configure : {
 		        doubleClickZoom : true,
 		        scrollWheelZoom : true,
@@ -127,52 +124,82 @@ window.onload = function(){
 		// 「大きな地図で見る」標識を隠す
 		$(".yolp-ymapbanner").css("display","none");
 
-		getLocationList(ymap);
+		get_location_list(ymap, current_lat, current_lng);
 	};
 
-	var getLocationList = function(ymap) {
+	var get_location_list = function(ymap, lat, lng) {
 		request.ajax({
 			url: "location_list.php",
 	    	data: {
-	    		lat: current_lat,
-	    		lng: current_lng
+	    		lat: lat,
+	    		lng: lng
 	    	},
-	    	success: function(response) {
-
-	    		// 店舗なし、シェア
-	    		if (Object.keys(response).length < 1) {
-	    			$("#location").append("很抱歉，附近还没有店铺信息。我来分享");
-	    		} else {
-	    			for(var location_info of response.location_list) {
-			    		$("#location").append(
-			    			"<div class='location_list'>"
-			                + "<div><div class='location_name'><div><i class='fa fa-map-marker' aria-hidden='true'></i>" 
-			                + location_info.location_name + "</div>"
-			                + "<div class='address'>" + location_info.address + "</div></div>"
-			                + "<i class='fa fa-angle-right detail' aria-hidden='true'></i></div>"
-			                + "<input type='hidden' value='" + location_info.location_id + "' name='location_id' />"
-			                + "<input type='hidden' value='" + location_info.version_id + "' name='version_id' />"
-			                + "<input type='hidden' value='" + location_info.lat + "' name='lat' />"
-			                + "<input type='hidden' value='" + location_info.lng + "' name='lng' />"
-			                + "<div>");
-			    		// icon追加
-			    		var marker = new Y.Marker(new Y.LatLng(location_info.lat, location_info.lng), {icon: icon});
-						ymap.addFeature(marker);
-
-						$("#location").on('click', '.location_list', function() {
-							location_id = $(this).find("[name=location_id]").val();
-							version_id = $(this).find("[name=version_id]").val();
-							lat = $(this).find("[name=lat]").val();
-							lng = $(this).find("[name=lng]").val();
-							location.href = "location_info.html?location_id=" + location_id + "&version_id="
-								+ version_id + "&lat=" + lat + "&lng=" + lng; 
-						});
-		    		}
-	    		}
-
-	   		}
+	    	success: show_location_list
 		});
 	};
+
+	var show_location_list = function(response) {
+		$("#location").empty();
+	    // 店舗なし、シェア
+	    if (Object.keys(response).length < 1) {
+	    	$("#location").append("很抱歉，尚未搜集到您附近的店铺信息。");
+	    } else {
+		    for(var location_info of response.location_list) {
+				$("#location").append(
+			  			"<div class='location_list'>"
+			            + "<div><div class='location_name'><div><i class='fa fa-map-marker' aria-hidden='true'></i>" 
+			            + location_info.location_name + "</div>"
+		                + "<div class='address'>" + location_info.address + "</div></div>"
+		                + "<i class='fa fa-angle-right detail' aria-hidden='true'></i></div>"
+		                + "<input type='hidden' value='" + location_info.location_id + "' name='location_id' />"
+		                + "<input type='hidden' value='" + location_info.version_id + "' name='version_id' />"
+		                + "<input type='hidden' value='" + location_info.lat + "' name='lat' />"
+		                + "<input type='hidden' value='" + location_info.lng + "' name='lng' />"
+		                + "<div>");
+		        // icon追加
+				var marker = new Y.Marker(new Y.LatLng(location_info.lat, location_info.lng), {icon: icon});
+				ymap.addFeature(marker);
+
+				$("#location").on('click', '.location_list', function() {
+					location_id = $(this).find("[name=location_id]").val();
+					version_id = $(this).find("[name=version_id]").val();
+					lat = $(this).find("[name=lat]").val();
+					lng = $(this).find("[name=lng]").val();
+					location.href = "location_info.html?location_id=" + location_id + "&version_id="
+						+ version_id + "&lat=" + lat + "&lng=" + lng; 
+				});
+			}
+	    }
+	};
+
+	// 検索結果のマーカーを地図に立てる関数を定義します。
+	var search = function(){
+	    // 検索キーワード, 電話帳カセットIDを指定します。
+	    var keyword = $('#keyword').val();
+	    var cid  = "d8a23e9e64a4c817227ab09858bc1330";
+	    var options = {};
+
+	    // ローカルサーチオブジェクトを生成します
+	    var local = new Y.LocalSearch();
+	    var bounds = new Y.LatLngBounds();
+
+	    // 入力した値をパラメータとして検索します。
+	    local.search(keyword, cid, options, function(result){
+	        for (var i=0, len=result.features.length; i<len; i++) {
+	            var feature = result.features[i];
+	            bounds.extend(feature.latlng);
+	        }
+
+	        // 結果のYDFを地図に追加
+	        if(result.features && result.features[0]){
+	            ymap.drawBounds(bounds);
+	        }
+
+	        get_location_list(ymap, ymap.getCenter().lat(), ymap.getCenter().lng());
+	    });
+	}
+
+	$("#search").on("click", search);
 };
 </script>
 <body>
@@ -189,19 +216,14 @@ window.onload = function(){
 	    <div class="bar bar4"></div>
 	    <div class="bar bar5"></div>
 	</div>
-	<div class="loading_footer">
-		正在为您加载地图...	
-	</div>
+	<div class="loading_footer">正在为您加载地图...</div>
 </div>
 
-<div class="title"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;&nbsp;附近的店铺情报</div>
+<div class="title"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;&nbsp;我附近的中华物产店</div>
 <div id="location">
 </div>
 
-<div id="share">
-    <!--<i class="fa fa-plus-circle" aria-hidden="true"></i>-->
-    我来分享<i class="fa fa-share-alt" aria-hidden="true"></i>
-</div>
+<div id="share">我来分享<i class="fa fa-share-alt" aria-hidden="true"></i></div>
 
 <script type="text/javascript">
 $("#share").on('click', function(){
