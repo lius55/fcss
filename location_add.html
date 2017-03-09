@@ -214,22 +214,19 @@ window.onload = function(){
 	        // 検索キーワード, 電話帳カセットIDを指定します。
 	        var keyword = $('#keyword').val();
 	        var cid  = "d8a23e9e64a4c817227ab09858bc1330";
-	        var options = {};
+	        var options = {"sort": "dist"};
 
 	        var bounds = new Y.LatLngBounds();
 
 	        // 入力した値をパラメータとして検索します。
 	        local.search(keyword, cid, options, function(result){
-	            for (var i=0, len=result.features.length; i<len; i++) {
-	                var feature = result.features[i];
-	                bounds.extend(feature.latlng);
-	            }
-
 	            // 結果のYDFを地図に追加して、マーカーを立てます。
-	            ymap.clearFeatures();
 	            if(result.features && result.features[0]){
-	                ymap.addFeatures(result.features);
+	            	var feature = result.features[0];
+	            	ymap.clearFeatures();
+	            	bounds.extend(feature.latlng);	
 	                ymap.drawBounds(bounds);
+	                ymap.setZoom(16);
 	            }
 	      	});
 	    }

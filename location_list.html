@@ -186,7 +186,7 @@ window.onload = function(){
 	    // 検索キーワード, 電話帳カセットIDを指定します。
 	    var keyword = $('#keyword').val();
 	    var cid  = "d8a23e9e64a4c817227ab09858bc1330";
-	    var options = {};
+	    var options = {"sort": "dist"};
 
 	    // ローカルサーチオブジェクトを生成します
 	    var local = new Y.LocalSearch();
@@ -194,14 +194,13 @@ window.onload = function(){
 
 	    // 入力した値をパラメータとして検索します。
 	    local.search(keyword, cid, options, function(result){
-	        for (var i=0, len=result.features.length; i<len; i++) {
-	            var feature = result.features[i];
-	            bounds.extend(feature.latlng);
-	        }
-
-	        // 結果のYDFを地図に追加
+	        // 結果のYDFを地図に表示
 	        if(result.features && result.features[0]){
+	        	var feature = result.features[0];
+	        	ymap.clearFeatures();
+	        	bounds.extend(feature.latlng);	
 	            ymap.drawBounds(bounds);
+	            ymap.setZoom(16);
 	        }
 
 	        get_location_list(ymap, ymap.getCenter().lat(), ymap.getCenter().lng());
