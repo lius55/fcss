@@ -119,12 +119,20 @@ window.onload = function(){
 
 		// スケールコントロール追加
 		ymap.addControl(new Y.SliderZoomControlVertical(), 
-			new Y.ControlPosition(Y.ControlPosition.BOTTOM_LEFT, new Y.Size(10,230)));
+			new Y.ControlPosition(Y.ControlPosition.BOTTOM_LEFT, new Y.Size(10, 230)));
 
 		// 「大きな地図で見る」標識を隠す
 		$(".yolp-ymapbanner").css("display","none");
 
 		get_location_list(ymap, current_lat, current_lng);
+
+		// クリックイベント処理
+		ymap.bind('moveend', function(){
+			var latlng = ymap.getCenter();
+			// 同時に一つmarkerしか有効にしない
+	    	marker = new Y.Marker(latlng, {icon: icon});
+			get_location_list(ymap, latlng.Lat, latlng.Lng);
+		});
 	};
 
 	var get_location_list = function(ymap, lat, lng) {
@@ -139,10 +147,11 @@ window.onload = function(){
 	};
 
 	var show_location_list = function(response) {
+		// TODO > add a duration!
 		$("#location").empty();
 	    // 店舗なし、シェア
 	    if (Object.keys(response).length < 1) {
-	    	$("#location").append("很抱歉，尚未搜集到您附近的店铺信息。");
+	    	$("#location").append("很抱歉，尚未搜集到附近的店铺信息。");
 	    } else {
 		    for(var location_info of response.location_list) {
 				$("#location").append(
